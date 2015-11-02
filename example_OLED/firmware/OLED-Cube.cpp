@@ -4,14 +4,14 @@
   Jim Lindblom @ SparkFun Electronics
   Original Creation Date: June 22, 2015
 
-  This sketch draws a 3-D cube on the SparkFun Photon Micro OLED shield. 
+  This sketch draws a 3-D cube on the SparkFun Photon Micro OLED shield.
   It'll rotate as fast as it can.
 
   Hardware Connections:
     We'll be using the SPI interface on the MicroOLED, though it
     also supports I2C (and a really messy parallel). If you want
     to swap in I2C, read through the comments to find out how.
-	
+
 	(The Shield already does this for you, but a SparkFun Micro OLED will
 	also work with this library.)
 
@@ -36,7 +36,7 @@
 
   Distributed as-is; no warranty is given.
 *******************************************************************************/
-#include "SparkFunMicroOLED/SparkFunMicroOLED.h"  // Include Micro OLED library
+#include "SparkFunMicroOLED.h"  // Include Micro OLED library
 #include "math.h"
 
 //////////////////////////
@@ -81,27 +81,6 @@ float p2y[] = {0,0,0,0,0,0,0,0};
 float r[] = {0,0,0};
 
 
-void setup()
-{
-  // These three lines of code are all you need to initialize the
-  // OLED and print the splash screen.
-
-  // Before you can start using the OLED, call begin() to init
-  // all of the pins and configure the OLED.
-  oled.begin();
-  // clear(ALL) will clear out the OLED's graphic memory.
-  // clear(PAGE) will clear the Arduino's display buffer.
-  oled.clear(ALL);  // Clear the display's memory (gets rid of artifacts)
-  // To actually draw anything on the display, you must call the
-  // display() function.
-}
-
-void loop()
-{
-	drawCube();
-	delay(ROTATION_SPEED);
-}
-
 void drawCube()
 {
   r[0]=r[0]+M_PI/180.0; // Add a degree
@@ -140,4 +119,25 @@ void drawCube()
 	oled.line(p2x[7],p2y[7],p2x[4],p2y[4]);
 	oled.line(p2x[3],p2y[3],p2x[7],p2y[7]);
 	oled.display();
+}
+
+void setup()
+{
+  // These three lines of code are all you need to initialize the
+  // OLED and print the splash screen.
+
+  // Before you can start using the OLED, call begin() to init
+  // all of the pins and configure the OLED.
+  oled.begin();
+  // clear(ALL) will clear out the OLED's graphic memory.
+  // clear(PAGE) will clear the Arduino's display buffer.
+  oled.clear(ALL);  // Clear the display's memory (gets rid of artifacts)
+  // To actually draw anything on the display, you must call the
+  // display() function.
+}
+
+void loop()
+{
+	drawCube();
+	delay(ROTATION_SPEED);
 }
