@@ -120,13 +120,24 @@ void read_val_to_arr_pos(float *arr, int pos)
 {
   float temp_voltage, temp_current, temp_absorbance;
   temp_voltage  = analogRead(InputPin);
+#ifdef DEBUG2_ON
+  Serial.print("Analog read = ");
+  Serial.println(temp_voltage);
+#endif
   temp_current = (temp_voltage*MULT_CONSTANT);
   temp_absorbance = log10(temp_current/LED_CURRENT);
+#ifdef DEBUG2_ON
+  Serial.print("temp_absorbance value = ");
+  Serial.println(temp_absorbance);
+#endif
   if(abs(temp_absorbance) < INVALID_ABSORBANCE_VAL)
     arr[pos] = temp_absorbance;
   else
     arr[pos]  = INVALID_ABSORBANCE_VAL;
+#ifdef DEBUG2_ON
+  Serial.print("Arr[pos] contents = ");
   Serial.println(arr[pos]);
+#endif
 }
 
 // Reads the analog value into Red or IR array
@@ -138,7 +149,13 @@ bool read_and_store(float *arr)
   if(cur_pos < SAMPLE_WINDOW_SIZE)
   {
     read_val_to_arr_pos(arr, cur_pos++);
-    return false;
+    if(SAMPLE_WINDOW_SIZE == 1)
+    {
+      cur_pos = 0;
+      return true;
+    }
+    else
+      return false;
   }
   else
   {
@@ -147,16 +164,25 @@ bool read_and_store(float *arr)
   }
 }
 
+// Function called at each sample interval
 void sample_and_store()
 {
   float avgAbsorbanceRed, avgAbsorbanceIR;
 
   if(state_diag)
   {
+#ifdef DEBUG2_ON
+  Serial.print("Red LED  \n" );
+  //Serial.println(avgAbsorbanceRed);
+#endif
     read_and_store(red_arr);
   }
   else
   {
+#ifdef DEBUG2_ON
+      Serial.print("IR LED  \n" );
+      //Serial.println(avgAbsorbanceRed);
+#endif
     if(read_and_store(ir_arr))
     {
       avgAbsorbanceIR   = calc_average(ir_arr);
@@ -170,9 +196,9 @@ void sample_and_store()
         AbsorbanceRed = avgAbsorbanceRed;
       }
 #ifdef DEBUG2_ON
-      Serial.print("avgAbsorbanceRed % = " );
+      Serial.print("avgAbsorbanceRed = " );
       Serial.println(avgAbsorbanceRed);
-      Serial.print("avgAbsorbanceIR % = " );
+      Serial.print("avgAbsorbanceIR = " );
       Serial.println(avgAbsorbanceIR);
 #endif
       CalculatedRatio =  AbsorbanceRed/(AbsorbanceIR + AbsorbanceRed);
