@@ -16,11 +16,12 @@ int LEDIR=D1;
 bool red_state;
 bool ir_state;
 bool state_diag;
-int red_arr[10]; // array to store red_values
-int ir_arr[10]; // array to store red_values
+float red_arr[SAMPLE_WINDOW_SIZE]; // array to store red_values
+float ir_arr[SAMPLE_WINDOW_SIZE]; // array to store ir_values
 
 /*** Software Timers ***/
-Timer change_led_timer(1500, change_led_type);
+Timer change_led_timer(LED_ON_TIME, change_led_type);
+Timer sample_pulse_values(SAMPLE_INTERVAL, sample_and_store);
 //Timer change_ir_timer(6000, change_ir_type);
 //Timer ir_timer(6000, read_ir_and_calc);
 //Timer call_connect_timer(20000, call_connect);
@@ -61,6 +62,12 @@ void read_ir()
   sensorVoltage = analogRead(InputPin);
   sensorCurrent = (sensorVoltage*MULT_CONSTANT);
   AbsorbanceIR = log10(sensorCurrent/LED_CURRENT);
+#ifdef DEBUG2_ON
+    Serial.print("AbsorbanceRed = ");
+    Serial.println(AbsorbanceRed);
+    Serial.print("AbsorbanceIR = ");
+    Serial.println(AbsorbanceIR);
+#endif
 #ifdef DEBUG_ON
   Serial.print("Voltage IR = ");
   Serial.println(sensorVoltage);
@@ -87,6 +94,93 @@ void change_led_type()
     ir_state  = true;
   }
   state_diag  = !state_diag;
+}
+
+// Calculates the average of the given array elements
+float calc_average(float *arr)
+{
+  int iter, avg_count = 0;
+  float temp_sum  = 0;
+
+  for(iter=0; iter<SAMPLE_WINDOW_SIZE; ++iter)
+  {
+    if(abs(arr[iter]) < INVALID_ABSORBANCE_VAL)
+    {
+      temp_sum  += arr[iter];
+      ++avg_count;
+    }
+  }
+  return !avg_count ? INVALID_ABSORBANCE_VAL : (temp_sum/avg_count) ;
+}
+
+// Reads the value from analog InputPin.
+// Computes Absorbance and stores in position
+// of the array
+void read_val_to_arr_pos(float *arr, int pos)
+{
+  float temp_voltage, temp_current, temp_absorbance;
+  temp_voltage  = analogRead(InputPin);
+  temp_current = (temp_voltage*MULT_CONSTANT);
+  temp_absorbance = log10(temp_current/LED_CURRENT);
+  if(abs(temp_absorbance) < INVALID_ABSORBANCE_VAL)
+    arr[pos] = temp_absorbance;
+  else
+    arr[pos]  = INVALID_ABSORBANCE_VAL;
+  Serial.println(arr[pos]);
+}
+
+// Reads the analog value into Red or IR array
+// Returns true if it fills up the array
+// else false
+bool read_and_store(float *arr)
+{
+  static int cur_pos;
+  if(cur_pos < SAMPLE_WINDOW_SIZE)
+  {
+    read_val_to_arr_pos(arr, cur_pos++);
+    return false;
+  }
+  else
+  {
+    cur_pos = 0;
+    return true;
+  }
+}
+
+void sample_and_store()
+{
+  float avgAbsorbanceRed, avgAbsorbanceIR;
+
+  if(state_diag)
+  {
+    read_and_store(red_arr);
+  }
+  else
+  {
+    if(read_and_store(ir_arr))
+    {
+      avgAbsorbanceIR   = calc_average(ir_arr);
+      avgAbsorbanceRed  = calc_average(red_arr);
+      if(avgAbsorbanceIR != INVALID_ABSORBANCE_VAL)
+      {
+        AbsorbanceIR = avgAbsorbanceIR;
+      }
+      if(avgAbsorbanceRed != INVALID_ABSORBANCE_VAL)
+      {
+        AbsorbanceRed = avgAbsorbanceRed;
+      }
+#ifdef DEBUG2_ON
+      Serial.print("avgAbsorbanceRed % = " );
+      Serial.println(avgAbsorbanceRed);
+      Serial.print("avgAbsorbanceIR % = " );
+      Serial.println(avgAbsorbanceIR);
+#endif
+      CalculatedRatio =  AbsorbanceRed/(AbsorbanceIR + AbsorbanceRed);
+      bloodOx = -30.667*CalculatedRatio*CalculatedRatio + 10*CalculatedRatio  + 102.67;
+      Serial.print("Blood Ox % = " );
+      Serial.println(bloodOx);
+    }
+  }
 }
 
 #endif
