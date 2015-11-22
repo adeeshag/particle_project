@@ -1,8 +1,6 @@
 #ifndef __PULSE_OX__
 #define __PULSE_OX__ 1
 
-
-
 float InputPin = A0; // Analog input pin from output of op amp
 float sensorVoltage = 0;
 float sensorCurrent = 0;
@@ -14,6 +12,7 @@ int LEDRed=D0;
 int LEDIR=D1;
 bool red_state;
 bool ir_state;
+bool state_diag;
 
 #include<math.h>
 
@@ -29,15 +28,15 @@ Timer change_led_timer(1500, change_led_type);
 //Timer call_connect_timer(20000, call_connect);
 
 void setup() {
-Serial.begin(9600);
-pinMode(LEDRed, OUTPUT);
-pinMode(LEDIR, OUTPUT);
-pinMode(InputPin, INPUT);
-red_state = false;
-ir_state  = true;
-state_diag  = true; // Init state
-change_led_timer.start();
-}
+  Serial.begin(9600);
+  pinMode(LEDRed, OUTPUT);
+  pinMode(LEDIR, OUTPUT);
+  pinMode(InputPin, INPUT);
+  red_state = false;
+  ir_state  = true;
+  state_diag  = true; // Init state
+  change_led_timer.start();
+} // setup
 
 void loop() {
     // red_led_on and start red_timer
@@ -106,17 +105,17 @@ void read_ir()
 // Changes which LED to shine
 void change_led_type()
 {
-    if(state_diag)
-    {
-      red_state = true;
-      ir_state  = false;
-    }
-    else
-    {
-      red_state = false;
-      ir_state  = true;
-    }
-    state_diag  = !state_diag;
+  if(state_diag)
+  {
+    red_state = true;
+    ir_state  = false;
+  }
+  else
+  {
+    red_state = false;
+    ir_state  = true;
+  }
+  state_diag  = !state_diag;
 }
 
 #endif
