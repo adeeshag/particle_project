@@ -1,9 +1,12 @@
+#ifndef __PULSE_OX__
+#define __PULSE_OX__ 1
+
+
+
 float InputPin = A0; // Analog input pin from output of op amp
 float sensorVoltage = 0;
 float sensorCurrent = 0;
-float LEDCurrentRed = 0;
 float AbsorbanceRed = 0;
-float LEDCurrentIR = 0;
 float AbsorbanceIR = 0;
 float CalculatedRatio;
 float bloodOx = 0;
@@ -11,7 +14,6 @@ int LEDRed=D0;
 int LEDIR=D1;
 bool red_state;
 bool ir_state;
-bool state_diag;
 
 #include<math.h>
 
@@ -21,7 +23,7 @@ bool state_diag;
 
 //SYSTEM_MODE(MANUAL);
 
-Timer change_led_timer(3000, change_led_type);
+Timer change_led_timer(1500, change_led_type);
 //Timer change_ir_timer(6000, change_ir_type);
 //Timer ir_timer(6000, read_ir_and_calc);
 //Timer call_connect_timer(20000, call_connect);
@@ -34,44 +36,41 @@ pinMode(InputPin, INPUT);
 red_state = false;
 ir_state  = true;
 state_diag  = true; // Init state
-//ir_timer.start();
 change_led_timer.start();
-//change_ir_timer.start();
-//call_connect_timer.start();
 }
 
 void loop() {
     // red_led_on and start red_timer
     if(red_state)
     {
-       read_red_and_calc();
+       read_red();
        red_state  =  false;
        ir_state   =  false;
     }
 
     if(ir_state)
     {
-      read_ir_and_calc();
+      read_ir();
       red_state = false;
       ir_state  = false;
     }
-    //else
-    //{
-      // do nothing
-    //}
+
 } // loop
 
+// Turns on Red LED
 void red_led_on()
 {
   digitalWrite(LEDIR, LOW); digitalWrite(LEDRed, HIGH);
 }
 
+// Turns on IR LED
 void ir_led_on()
 {
   digitalWrite(LEDRed, LOW); digitalWrite(LEDIR, HIGH);
 }
 
-void read_red_and_calc()
+// Reads analog data of Red LED values
+void read_red()
 {
   ir_led_on();
   sensorVoltage = analogRead(InputPin);
@@ -85,7 +84,8 @@ void read_red_and_calc()
 #endif
 }
 
-void read_ir_and_calc()
+// Reads analog data of IR LED values
+void read_ir()
 {
   red_led_on();
   sensorVoltage = analogRead(InputPin);
@@ -103,6 +103,7 @@ void read_ir_and_calc()
   Serial.println(bloodOx);
 }
 
+// Changes which LED to shine
 void change_led_type()
 {
     if(state_diag)
@@ -118,7 +119,4 @@ void change_led_type()
     state_diag  = !state_diag;
 }
 
-void call_connect()
-{
-  Particle.connect();
-}
+#endif
