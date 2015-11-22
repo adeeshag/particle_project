@@ -2,14 +2,9 @@
 #define __PULSE_OX__ 1
 
 #include<math.h>
-#include "pulse_ox.h"
+#include "pulse_ox_defs.h"
 
 //SYSTEM_MODE(MANUAL);
-
-Timer change_led_timer(1500, change_led_type);
-//Timer change_ir_timer(6000, change_ir_type);
-//Timer ir_timer(6000, read_ir_and_calc);
-//Timer call_connect_timer(20000, call_connect);
 
 void setup() {
   Serial.begin(9600);
@@ -39,6 +34,4 @@ void loop() {
     }
 
 } // loop
-
-
 #endif
