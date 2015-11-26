@@ -3,8 +3,10 @@
 
 /*** Debugging options ***/
 //#define DEBUG_ON 1
-#define DEBUG2_ON 2
-//#define OLD_CODE 1
+//#define DEBUG2_ON 2
+//#define OLD_CODE_PULSE_OX 1
+//#define PULSE_OXIMETER 1
+#define ACCELEROMETER_ON 1
 
 /*** Defines ***/
 #define MULT_CONSTANT (3.3/(15000000*4095))*1000000 //150000000 is resistance
@@ -15,6 +17,9 @@
 #define SAMPLE_INTERVAL LED_ON_TIME/SAMPLE_WINDOW_SIZE // in ms
 
 /*** Function Declarations ***/
+/* ACCELEROMETER_ON */
+void read_input();
+/* PULSE_OXIMETER */
 void read_red();
 void read_ir();
 void red_led_on();
