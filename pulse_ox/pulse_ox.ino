@@ -16,40 +16,44 @@ void setup() {
   ir_state  = true;
   state_diag  = true; // Init state
   change_led_timer.start();
+#endif // PULSE_OXIMETER
 #ifdef ACCELEROMETER_ON
   pinMode(accelXInput, INPUT);
   pinMode(accelYInput, INPUT);
   pinMode(accelZInput, INPUT);
+  sample_accel_values.start();
 #endif // ACCELEROMETER_ON
-
-#ifndef OLD_CODE_PULSE_OX
+#ifdef PULSE_OXIMETER
+  #ifndef OLD_CODE_PULSE_OX
   sample_pulse_values.start();
-#endif
-
+  #endif
 #endif // PULSE_OXIMETER
 } // setup
 
 void loop() {
     // red_led_on and start red_timer
+#ifdef ACCELEROMETER_ON
+  //read_accel_input();
+#endif // ACCELEROMETER_ON
 #ifdef PULSE_OXIMETER
     if(red_state)
     {
-#ifndef OLD_CODE_PULSE_OX
+      #ifndef OLD_CODE_PULSE_OX
        red_led_on();
-#else
+       #else
        read_red();
-#endif
+       #endif
        red_state  =  false;
        ir_state   =  false;
     }
 
     if(ir_state)
     {
-#ifndef OLD_CODE_PULSE_OX
+      #ifndef OLD_CODE_PULSE_OX
       ir_led_on();
-#else
+      #else
       read_ir();
-#endif
+      #endif
       red_state = false;
       ir_state  = false;
     }

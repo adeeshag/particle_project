@@ -24,16 +24,20 @@ int accelXInput = A1;
 int accelYInput = A2;
 int accelZInput = A3;
 
-int xInVal;
-int yInVal;
-int zInVal;
-int xVal;
-int yVal;
-int zVal;
+float xInVal;
+float yInVal;
+float zInVal;
+float xVal;
+float yVal;
+float zVal;
+float xAngle;
+float yAngle;
+float zAngle;
 
 /*** Software Timers ***/
 Timer change_led_timer(LED_ON_TIME, change_led_type);
 Timer sample_pulse_values(SAMPLE_INTERVAL, sample_and_store);
+Timer sample_accel_values(ACCELEROMETER_SAMPLE_INTERVAL, read_accel_input);
 //Timer change_ir_timer(6000, change_ir_type);
 //Timer ir_timer(6000, read_ir_and_calc);
 //Timer call_connect_timer(20000, call_connect);
@@ -41,24 +45,29 @@ Timer sample_pulse_values(SAMPLE_INTERVAL, sample_and_store);
 /*** Function definitions ***/
 /* ACCELEROMETER_ON */
 
-void read_input()
+void read_accel_input()
 {
   xInVal  = analogRead(accelXInput);
-  xVal = map(xInVal, 0, 4096, 0, 255);
-  delay(200);
+  //xVal = map(xInVal, 0, 4096, 0, 255);
+  xVal  = (xInVal*MULT_CONSTANT_ACCEL - X_Y_Z_REFERNCE_VAL);
+  //delay(200);
   yInVal  = analogRead(accelYInput);
-  yVal = map(yInVal, 0, 4096, 0, 255);
-  delay(200);
+  //yVal = map(yInVal, 0, 4096, 0, 255);
+  yVal  = (yInVal*MULT_CONSTANT_ACCEL - X_Y_Z_REFERNCE_VAL);
+  //delay(200);
   zInVal  = analogRead(accelZInput);
-  zVal = map(zInVal, 0, 4096, 0, 255);
-  delay(200);
+  zVal  = (zInVal*MULT_CONSTANT_ACCEL - X_Y_Z_REFERNCE_VAL);
+  //zVal = map(zInVal, 0, 4096, 0, 255);
+  //delay(200);
+  xAngle  = atan2(-yVal,-zVal)*RADIANS_TO_DEG_MULT_CONSTANT + VAL_180;
+  yAngle  = atan2(-xVal,-zVal)*RADIANS_TO_DEG_MULT_CONSTANT + VAL_180;
+  zAngle  = atan2(-yVal,-xVal)*RADIANS_TO_DEG_MULT_CONSTANT + VAL_180;
   Serial.print("X val=");
-  Serial.println(xVal);
-  Serial.print("Y val=");
-  Serial.println(yVal);
-  Serial.print("Z val=");
-  Serial.println(zVal);
-
+  Serial.print(xAngle);
+  Serial.print(" Y val=");
+  Serial.print(yAngle);
+  Serial.print(" Z val=");
+  Serial.println(zAngle);
 }
 
 /* PULSE_OXIMETER */

@@ -15,10 +15,15 @@
 #define LED_ON_TIME 2000 // in ms
 #define SAMPLE_WINDOW_SIZE 1
 #define SAMPLE_INTERVAL LED_ON_TIME/SAMPLE_WINDOW_SIZE // in ms
+#define X_Y_Z_REFERNCE_VAL 1.6 // normalization values for each of them
+#define MULT_CONSTANT_ACCEL 3.3/4095
+#define RADIANS_TO_DEG_MULT_CONSTANT 57.2957795
+#define VAL_180 180 //180 degrees used for conversion
+#define ACCELEROMETER_SAMPLE_INTERVAL 2000
 
 /*** Function Declarations ***/
 /* ACCELEROMETER_ON */
-void read_input();
+void read_accel_input();
 /* PULSE_OXIMETER */
 void read_red();
 void read_ir();
