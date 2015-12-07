@@ -23,6 +23,8 @@ float ir_arr[SAMPLE_WINDOW_SIZE]; // array to store ir_values
 int accelXInput = A1;
 int accelYInput = A2;
 int accelZInput = A3;
+//MICROPHONE_ON
+int micInput  = A4;
 
 float xInVal;
 float yInVal;
@@ -38,6 +40,7 @@ float zAngle;
 Timer change_led_timer(LED_ON_TIME, change_led_type);
 Timer sample_pulse_values(SAMPLE_INTERVAL, sample_and_store);
 Timer sample_accel_values(ACCELEROMETER_SAMPLE_INTERVAL, read_accel_input);
+Timer microphone_check(ACCELEROMETER_SAMPLE_INTERVAL, mic_check_val);
 //Timer change_ir_timer(6000, change_ir_type);
 //Timer ir_timer(6000, read_ir_and_calc);
 //Timer call_connect_timer(20000, call_connect);
@@ -154,6 +157,11 @@ float calc_average(float *arr)
       ++avg_count;
     }
   }
+  //clearing array
+  for(iter=0; iter<SAMPLE_WINDOW_SIZE; ++iter)
+  {
+    arr[iter] = INVALID_ABSORBANCE_VAL;
+  }
   return !avg_count ? INVALID_ABSORBANCE_VAL : (temp_sum/avg_count) ;
 }
 
@@ -169,8 +177,17 @@ void read_val_to_arr_pos(float *arr, int pos)
   Serial.println(temp_voltage);
 #endif
   temp_current = (temp_voltage*MULT_CONSTANT);
-  temp_absorbance = log10(temp_current/LED_CURRENT);
+  if(temp_voltage == MAX_ANALOG_INPUT_VAL)
+  {
+    temp_absorbance = log(-1);
+  }
+  else
+  {
+    temp_absorbance = log10(temp_current/LED_CURRENT);
+  }
 #ifdef DEBUG2_ON
+  Serial.print("temp_current = ");
+  Serial.println(temp_current);
   Serial.print("temp_absorbance value = ");
   Serial.println(temp_absorbance);
 #endif
@@ -247,10 +264,20 @@ void sample_and_store()
 #endif
       calculatedRatio =  absorbanceRed/(absorbanceIR + absorbanceRed);
       bloodOx = -30.667*calculatedRatio*calculatedRatio + 10*calculatedRatio  + 102.67;
+      bloodOx = (bloodOx > 100) ? 100 : bloodOx;
       Serial.print("Blood Ox % = " );
       Serial.println(bloodOx);
     }
   }
+}
+
+void mic_check_val()
+{
+  int mic_read;
+  mic_read = map(analogRead(micInput),0,4096,0,255);
+  Serial.println(mic_read);
+  if(mic_read > MAX_MIC_VAL)
+    Serial.print("Snore Detected\n");
 }
 
 #endif

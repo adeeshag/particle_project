@@ -1,5 +1,5 @@
 #ifndef __PULSE_OX__
-#define __PULSE_OX__ 1
+#define __PULSE_OX__
 
 #include<math.h>
 #include "pulse_ox_definitions.h"
@@ -23,6 +23,10 @@ void setup() {
   pinMode(accelZInput, INPUT);
   sample_accel_values.start();
 #endif // ACCELEROMETER_ON
+#ifdef MICROPHONE_ON
+  pinMode(micInput, INPUT);
+  microphone_check.start();
+#endif
 #ifdef PULSE_OXIMETER
   #ifndef OLD_CODE_PULSE_OX
   sample_pulse_values.start();
@@ -32,9 +36,6 @@ void setup() {
 
 void loop() {
     // red_led_on and start red_timer
-#ifdef ACCELEROMETER_ON
-  //read_accel_input();
-#endif // ACCELEROMETER_ON
 #ifdef PULSE_OXIMETER
     if(red_state)
     {
